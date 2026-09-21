@@ -1,4 +1,5 @@
 import sys
+import time
 import micropython
 from micropython import const
 import store_manager
@@ -6,8 +7,8 @@ from buzzer import buzzer
 
 class SyncMaster:
     """
-    SyncMaster v5: Communication protocol for ESP32.
-    Implements closed-loop handshake with upload screen locking and audio prompts.
+    SyncMaster v6: Closed-loop ACK handshake protocol for ESP32 DevKit V1.
+    Strictly locks OLED display during uploads to eliminate screen flickering.
     """
     def __init__(self, on_command_cb, on_data_cb):
         self.on_command = on_command_cb
@@ -118,8 +119,8 @@ class SyncMaster:
                         try:
                             d = store_manager.manager.display
                             d.fill(0)
-                            d.text("DOWNLOADING CODE", 0, 10, 1)
-                            d.text(f"Lines: 0/{self._total_lines}", 10, 35, 1)
+                            d.text("DOWNLOADING...", 10, 15, 1)
+                            d.text(f"Lines: 0/{self._total_lines}", 10, 40, 1)
                             d.show()
                         except Exception:
                             pass
@@ -133,14 +134,15 @@ class SyncMaster:
                 self.on_command("PROGRESS", (self._current_line, self._total_lines))
                 self.send_ack("OK")
                 
-                # Update progress on locked display
+                # Update progress strictly on OLED display
                 if store_manager.manager and store_manager.manager.display:
                     try:
                         d = store_manager.manager.display
                         d.fill(0)
-                        d.text("DOWNLOADING CODE", 0, 10, 1)
+                        d.text("DOWNLOADING...", 10, 10, 1)
                         pct = int(self._current_line * 100 / max(1, self._total_lines))
-                        d.text(f"Progress: {pct}%", 10, 35, 1)
+                        d.text(f"Progress: {pct}%", 10, 30, 1)
+                        d.text(f"Line {self._current_line}/{self._total_lines}", 10, 48, 1)
                         d.show()
                     except Exception:
                         pass
@@ -150,6 +152,15 @@ class SyncMaster:
                     if store_manager.manager:
                         store_manager.manager.is_uploading = False
                     buzzer.play_button()
+                    if store_manager.manager and store_manager.manager.display:
+                        try:
+                            d = store_manager.manager.display
+                            d.fill(0)
+                            d.text("UPLOAD DONE!", 15, 25, 1)
+                            d.show()
+                            time.sleep_ms(300)
+                        except Exception:
+                            pass
 
     def send_ack(self, type):
         if type == "OK":

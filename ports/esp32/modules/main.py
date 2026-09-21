@@ -1,7 +1,7 @@
 import sys
 if '' not in sys.path:
     sys.path.insert(0, '')
-for mod in ['store_manager', 'ten', 'sync_master', 'hardware', 'buzzer']:
+for mod in ['store_manager', 'ten', 'sync_master', 'hardware', 'buzzer', 'eyes']:
     if mod in sys.modules:
         del sys.modules[mod]
 
@@ -54,7 +54,7 @@ def main():
             if loop_count % 10 == 0:
                 gc.collect()
 
-            if mgr and mgr.prog_status == "RUNNING":
+            if mgr and mgr.prog_status == "RUNNING" and not mgr.is_uploading:
                 try:
                     fsize = os.stat("app.py")[6]
                 except Exception:
@@ -64,7 +64,7 @@ def main():
                     current_session = mgr.exec_start_ticks
                     
                     def check_abort():
-                        if mgr.prog_status != "RUNNING" or mgr.exec_start_ticks != current_session:
+                        if mgr.prog_status != "RUNNING" or mgr.exec_start_ticks != current_session or mgr.is_uploading:
                             raise SystemExit("STOPPED_BY_USER")
 
                     exec_globals = {
@@ -99,8 +99,8 @@ def main():
                         # Play Error Sound Tone
                         buzzer.play_error()
                         
-                        # Render Error Screen on Display
-                        if mgr.display:
+                        # Render Error Screen on OLED Display
+                        if mgr.display and not mgr.is_uploading:
                             try:
                                 d = mgr.display
                                 d.fill(0)

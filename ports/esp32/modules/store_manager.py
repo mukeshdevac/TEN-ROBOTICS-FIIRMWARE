@@ -1,6 +1,6 @@
 """
 TEN Robotics - Store Manager & System Lifecycle for ESP32 DevKit V1 (PCB V2)
-Integrates Audio Feedback, BLE UART, OLED / TFT Display, and Hardware Lifecycle.
+Integrates Audio Feedback, BLE UART, 1.3" OLED Display, and Hardware Lifecycle.
 """
 
 import select
@@ -20,17 +20,14 @@ class BLEStream:
     """Stream wrapper to route print() outputs over BLE Web Serial interface."""
     def __init__(self, manager):
         self.mgr = manager
-        self.buffer = bytearray()
 
     def write(self, data):
         if not data:
             return len(data)
-        # Send to standard UART stdout
         try:
             sys.stdout.buffer.write(data)
         except Exception:
             pass
-        # Mirror to BLE if connected
         if self.mgr and hasattr(self.mgr, 'send_ble_data'):
             self.mgr.send_ble_data(data)
         return len(data)
@@ -44,15 +41,15 @@ class BLEStream:
 
 class StoreManager:
     def __init__(self):
-        self.header_text     = "TEN ROBOTICS ESP32 V1"
-        self.bt_status       = "DISC"
-        self.connections     = set()
-        self.prog_status     = "STOPPED" # STOPPED, RUNNING
-        self.last_error      = None
-        self._in_exec        = False
-        self.pending_start   = False
-        self.exec_start_ticks = 0
-        self.is_uploading    = False
+        self.header_text          = "TEN ROBOTICS ESP32 V1"
+        self.bt_status            = "DISC"
+        self.connections          = set()
+        self.prog_status          = "STOPPED" # STOPPED, RUNNING
+        self.last_error           = None
+        self._in_exec             = False
+        self.pending_start        = False
+        self.exec_start_ticks     = 0
+        self.is_uploading         = False
         self.last_power_telemetry = 0
 
         # Audio Startup Sound
@@ -71,7 +68,7 @@ class StoreManager:
         except Exception as e:
             print("MGR: I2C Init Error:", e)
 
-        # Display Initialization (OLED SSD1306/SH1106 or TFT)
+        # 1.3" OLED Display Initialization (SSD1306 / SH1106)
         self.display = None
         if self.i2c:
             try:
@@ -79,7 +76,7 @@ class StoreManager:
                 self.display = ssd1306.SSD1306_I2C(128, 64, self.i2c)
                 self.display.fill(0)
                 self.display.text("TEN ROBOTICS", 15, 10, 1)
-                self.display.text("ESP32 V1 READY", 10, 30, 1)
+                self.display.text("ESP32 V1 READY", 10, 35, 1)
                 self.display.show()
                 print("MGR: OLED 1.3\" Display Initialized.")
             except Exception as e:
@@ -122,15 +119,14 @@ class StoreManager:
                 self.stop_prog()
 
     def poll_power_telemetry(self):
-        """Send periodic power telemetry (battery percentage/voltage) every 2s."""
+        """Send periodic power telemetry over BLE every 2s without disturbing upload screen."""
         now = time.ticks_ms()
         if time.ticks_diff(now, self.last_power_telemetry) >= 2000:
             self.last_power_telemetry = now
             try:
-                # Read VP / VM voltage sense pin
                 adc = machine.ADC(machine.Pin(hardware.SN4))
                 raw = adc.read()
-                volts = round((raw / 4095.0) * 3.3 * 4.0, 2) # Voltage divider factor
+                volts = round((raw / 4095.0) * 3.3 * 4.0, 2)
                 pct = max(0, min(100, int((volts - 6.0) / (8.4 - 6.0) * 100)))
                 telemetry_str = f"POWER:{{\"v\":{volts},\"pct\":{pct}}}\n"
                 if self.ble_stream:
@@ -139,6 +135,8 @@ class StoreManager:
                 pass
 
     def start_prog(self):
+        if self.is_uploading:
+            return
         self.prog_status = "RUNNING"
         self.exec_start_ticks = time.ticks_ms()
         self._in_exec = True
@@ -160,6 +158,7 @@ class StoreManager:
             except Exception:
                 pass
 
+        # Return to main READY screen only if not uploading
         if self.display and not self.is_uploading:
             try:
                 self.display.fill(0)
