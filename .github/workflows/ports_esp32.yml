@@ -33,7 +33,7 @@ jobs:
           - esp32_build_p4
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     # Needs to be kept in synch with code_size.yml
     - id: idf_ver
