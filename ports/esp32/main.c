@@ -42,11 +42,9 @@
 #include "esp_log.h"
 #include "esp_memory_utils.h"
 #include "esp_psram.h"
-
-#include "py/cstack.h"
-#include "py/nlr.h"
-#include "py/compile.h"
+#include "esp_mac.h"
 #include "py/runtime.h"
+#include "extmod/modnetwork.h"
 #include "py/persistentcode.h"
 #include "py/repl.h"
 #include "py/gc.h"
@@ -238,6 +236,13 @@ soft_reset_exit:
 }
 
 void boardctrl_startup(void) {
+    // Set dynamic hostname based on MAC address
+    uint8_t mac[6];
+    esp_read_mac(mac, ESP_MAC_WIFI_STA);
+    // User requested format like TEN ROBOTICS D001. 
+    // We use the last 3 bytes of MAC to ensure uniqueness.
+    snprintf(mod_network_hostname_data, sizeof(mod_network_hostname_data), "TEN ROBOTICS %02X%02X%02X", mac[3], mac[4], mac[5]);
+
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         nvs_flash_erase();

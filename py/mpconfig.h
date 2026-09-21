@@ -2221,10 +2221,15 @@ typedef time_t mp_timestamp_t;
 // String used for the banner, and sys.version additional information
 #ifndef MICROPY_BANNER_NAME_AND_VERSION
 #if MICROPY_PREVIEW_VERSION_2
-#define MICROPY_BANNER_NAME_AND_VERSION "MicroPython (with v2.0 preview) " MICROPY_GIT_TAG " on " MICROPY_BUILD_DATE
+#define MICROPY_BANNER_NAME_AND_VERSION "TEN ROBOTICS (with v2.0 preview) " MICROPY_GIT_TAG " on " MICROPY_BUILD_DATE
 #else
-#define MICROPY_BANNER_NAME_AND_VERSION "MicroPython " MICROPY_GIT_TAG " on " MICROPY_BUILD_DATE
+#define MICROPY_BANNER_NAME_AND_VERSION "TEN ROBOTICS " MICROPY_GIT_TAG " on " MICROPY_BUILD_DATE
 #endif
+#endif
+
+// String used for sys.implementation.name
+#ifndef MICROPY_PY_SYS_IMPLEMENTATION_NAME
+#define MICROPY_PY_SYS_IMPLEMENTATION_NAME MP_QSTR_micropython
 #endif
 
 // String used for the second part of the banner, and sys.implementation._machine

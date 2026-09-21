@@ -14,6 +14,8 @@
 #define MICROPY_CONFIG_ROM_LEVEL            (MICROPY_CONFIG_ROM_LEVEL_EXTRA_FEATURES)
 #endif
 
+#define MICROPY_BANNER_NAME_AND_VERSION "TEN ROBOTICS v" MICROPY_GIT_TAG " on " MICROPY_BUILD_DATE
+
 // object representation and NLR handling
 #define MICROPY_OBJ_REPR                    (MICROPY_OBJ_REPR_A)
 #if CONFIG_IDF_TARGET_ARCH_XTENSA
@@ -29,7 +31,7 @@
 // and still have enough internal RAM to start WiFi and make a HTTPS request.
 #ifndef MICROPY_GC_INITIAL_HEAP_SIZE
 #if CONFIG_IDF_TARGET_ESP32
-#define MICROPY_GC_INITIAL_HEAP_SIZE        (56 * 1024)
+#define MICROPY_GC_INITIAL_HEAP_SIZE        (96 * 1024)
 #elif CONFIG_IDF_TARGET_ESP32C2 || (CONFIG_IDF_TARGET_ESP32S2 && !CONFIG_SPIRAM)
 #define MICROPY_GC_INITIAL_HEAP_SIZE        (36 * 1024)
 #else
@@ -56,6 +58,9 @@
 #ifndef MICROPY_OPT_COMPUTED_GOTO
 #define MICROPY_OPT_COMPUTED_GOTO           (1)
 #endif
+#ifndef MICROPY_OPT_MAP_LOOKUP_CACHE
+#define MICROPY_OPT_MAP_LOOKUP_CACHE        (1)
+#endif
 
 // Python internal features
 #define MICROPY_READER_VFS                  (1)
@@ -70,7 +75,7 @@
 #define MICROPY_STREAMS_POSIX_API           (1)
 #define MICROPY_USE_INTERNAL_ERRNO          (0) // errno.h from xtensa-esp32-elf/sys-include/sys
 #define MICROPY_USE_INTERNAL_PRINTF         (0) // ESP32 SDK requires its own printf
-#define MICROPY_SCHEDULER_DEPTH             (8)
+#define MICROPY_SCHEDULER_DEPTH             (32)
 #define MICROPY_SCHEDULER_STATIC_NODES      (1)
 #define MICROPY_VFS                         (1)
 
@@ -141,8 +146,8 @@
 #define MICROPY_PY_MACHINE_I2C              (1)
 #define MICROPY_PY_MACHINE_I2C_TRANSFER_WRITE1 (1)
 #ifndef MICROPY_PY_MACHINE_I2C_TARGET
-// I2C target hardware is limited on ESP32 (eg read event comes after the read) so we only support newer SoCs.
-#define MICROPY_PY_MACHINE_I2C_TARGET       (SOC_I2C_SUPPORT_SLAVE && !CONFIG_IDF_TARGET_ESP32)
+// I2C target hardware mode disabled to ensure ESP-IDF v5.2 compatibility
+#define MICROPY_PY_MACHINE_I2C_TARGET       (0)
 #define MICROPY_PY_MACHINE_I2C_TARGET_INCLUDEFILE "ports/esp32/machine_i2c_target.c"
 #define MICROPY_PY_MACHINE_I2C_TARGET_MAX   (2)
 #endif
@@ -165,26 +170,29 @@
 #define MICROPY_PY_MACHINE_UART_IRQ         (1)
 #define MICROPY_PY_MACHINE_WDT              (1)
 #define MICROPY_PY_MACHINE_WDT_INCLUDEFILE  "ports/esp32/machine_wdt.c"
+// String used for sys.implementation.name
+#define MICROPY_PY_SYS_IMPLEMENTATION_NAME  MP_QSTR_TEN_ROBOTICS
+
 #ifndef MICROPY_PY_NETWORK
 #define MICROPY_PY_NETWORK (1)
 #endif
 #ifndef MICROPY_PY_NETWORK_HOSTNAME_DEFAULT
 #if CONFIG_IDF_TARGET_ESP32
-#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "mpy-esp32"
+#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "TEN-ROBOTICS"
 #elif CONFIG_IDF_TARGET_ESP32S2
-#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "mpy-esp32s2"
+#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "TEN-ROBOTICS-S2"
 #elif CONFIG_IDF_TARGET_ESP32S3
-#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "mpy-esp32s3"
+#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "TEN-ROBOTICS-S3"
 #elif CONFIG_IDF_TARGET_ESP32C2
-#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "mpy-esp32c2"
+#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "TEN-ROBOTICS-C2"
 #elif CONFIG_IDF_TARGET_ESP32C3
-#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "mpy-esp32c3"
+#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "TEN-ROBOTICS-C3"
 #elif CONFIG_IDF_TARGET_ESP32C5
-#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "mpy-esp32c5"
+#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "TEN-ROBOTICS-C5"
 #elif CONFIG_IDF_TARGET_ESP32C6
-#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "mpy-esp32c6"
+#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "TEN-ROBOTICS-C6"
 #elif CONFIG_IDF_TARGET_ESP32P4
-#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "mpy-esp32p4"
+#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "TEN-ROBOTICS-P4"
 #endif
 #endif
 #define MICROPY_PY_NETWORK_INCLUDEFILE      "ports/esp32/modnetwork.h"
@@ -255,11 +263,11 @@
 // These Manufacturer & Product strings are the defaults when using the
 // esp_tinyusb component (which MicroPython used in the past).
 #ifndef MICROPY_HW_USB_MANUFACTURER_STRING
-#define MICROPY_HW_USB_MANUFACTURER_STRING "Espressif Systems"
+#define MICROPY_HW_USB_MANUFACTURER_STRING "TEN ROBOTICS"
 #endif
 
 #ifndef MICROPY_HW_USB_PRODUCT_FS_STRING
-#define MICROPY_HW_USB_PRODUCT_FS_STRING "Espressif Device"
+#define MICROPY_HW_USB_PRODUCT_FS_STRING "TEN ROBOTICS"
 #endif
 
 #if CONFIG_IDF_TARGET_ESP32P4
@@ -348,7 +356,7 @@ typedef long mp_off_t;
 #include <sys/types.h>
 
 // board specifics
-#define MICROPY_PY_SYS_PLATFORM "esp32"
+#define MICROPY_PY_SYS_PLATFORM "TEN ROBOTICS"
 
 // ESP32-S3 extended IO for 47 & 48
 #ifndef MICROPY_HW_ESP32S3_EXTENDED_IO

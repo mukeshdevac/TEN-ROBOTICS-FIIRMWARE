@@ -29,7 +29,7 @@
 #include "py/builtin.h"
 
 const char esp32_help_text[] =
-    "Welcome to MicroPython on the ESP32!\n"
+    "Welcome to TEN ROBOTICS!\n"
     "\n"
     "For online docs please visit http://docs.micropython.org/\n"
     "\n"

@@ -1,0 +1,2 @@
+'/home/balaji/.espressif/python_env/idf5.2_py3.12_env/bin/python3' is currently active in the environment while the project was configured with '/home/balaji/.espressif/python_env/idf5.2_py3.12_env/bin/python'. Run 'idf.py fullclean' to start again.
+Executing action: all (aliases: build)

@@ -1,0 +1,286 @@
+Executing action: all (aliases: build)
+Running ninja in directory /mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32/build-ESP32_GENERIC
+Executing "ninja all"...
+[1/268] Performing build step for 'bootloader'
+[1/1] cd /mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32/build-ESP32_GENERIC/bootloader/esp-idf/esptool_py && /home/balaji/.espressif/python_env/idf5.2_py3.12_env/bin/python3 /mnt/c/Users/BALAJI/Desktop/micropython/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 /mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32/build-ESP32_GENERIC/bootloader/bootloader.bin
+Bootloader binary size 0x5ae0 bytes. 0x1520 bytes (19%) free.
+[2/268] No install step for 'bootloader'
+[3/268] Completed 'bootloader'
+[4/268] cd /mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32/build-ESP32_GENERIC/esp-idf/main && /usr/bin/cmake -E make_directory /mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32/build-ESP32_GENERIC/genhdr && /home/balaji/.espressif/python_env/idf5.2_py3.12_env/bin/python3 /mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/makeversionhdr.py /mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32/build-ESP32_GENERIC/genhdr/mpversion.h
+[5/267] Generating ../../genhdr/qstr.i.last
+[6/267] Generating ../../genhdr/root_pointers.split
+[7/267] Generating ../../genhdr/root_pointers.collected
+Root pointer registrations not updated
+[8/266] Generating ../../genhdr/qstr.split
+[9/266] Generating ../../genhdr/qstrdefs.collected.h
+QSTR not updated
+[10/264] cd /mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32/build-ESP32_GENERIC/esp-idf/main && /home/balaji/.espressif/python_env/idf5.2_py3.12_env/bin/python3 /mnt/c/Users/BALAJI/Desktop/micropython/micropython/tools/makemanifest.py -o /mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32/build-ESP32_GENERIC/frozen_content.c -v BOARD_DIR=/mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32/boards/ESP32_GENERIC -v MPY_DIR=/mnt/c/Users/BALAJI/Desktop/micropython/micropython -v MPY_LIB_DIR=/mnt/c/Users/BALAJI/Desktop/micropython/micropython/lib/micropython-lib -v PORT_DIR=/mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32 -b /mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32/build-ESP32_GENERIC -f-march=xtensawin --mpy-tool-flags= /mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32/boards/manifest.py
+[11/264] Generating ../../genhdr/moduledefs.split
+[12/264] Generating ../../genhdr/compressed.split
+[13/264] Generating ../../genhdr/moduledefs.collected
+Module registrations not updated
+[14/263] Generating ../../genhdr/compressed.collected
+Compressed data not updated
+[15/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/asmthumb.c.obj
+[16/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/asmx64.c.obj
+[17/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/asmrv32.c.obj
+[18/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/asmarm.c.obj
+[19/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/asmbase.c.obj
+[20/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/argcheck.c.obj
+[21/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/asmx86.c.obj
+[22/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/binary.c.obj
+[23/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/builtinevex.c.obj
+[24/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/bc.c.obj
+[25/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/builtinhelp.c.obj
+[26/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/asmxtensa.c.obj
+[27/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/builtinimport.c.obj
+[28/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/cstack.c.obj
+[29/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/emitcommon.c.obj
+[30/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/emitglue.c.obj
+[31/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/emitbc.c.obj
+[32/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/emitinlinerv32.c.obj
+[33/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/emitinlinethumb.c.obj
+[34/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/compile.c.obj
+[35/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/emitinlinextensa.c.obj
+[36/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/emitnarm.c.obj
+[37/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/emitndebug.c.obj
+[38/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/emitnrv32.c.obj
+[39/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/emitnthumb.c.obj
+[40/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/emitnx64.c.obj
+[41/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/emitnxtensa.c.obj
+[42/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/emitnx86.c.obj
+[43/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/formatfloat.c.obj
+[44/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/frozenmod.c.obj
+[45/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/malloc.c.obj
+[46/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/gc.c.obj
+[47/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/lexer.c.obj
+[48/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/emitnxtensawin.c.obj
+[49/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/modarray.c.obj
+[50/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/map.c.obj
+[51/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/modcmath.c.obj
+[52/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/modcollections.c.obj
+[53/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/modgc.c.obj
+[54/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/modbuiltins.c.obj
+[55/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/modio.c.obj
+[56/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/modmath.c.obj
+[57/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/modmicropython.c.obj
+[58/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/modstruct.c.obj
+[59/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/modsys.c.obj
+[60/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/modthread.c.obj
+[61/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/moderrno.c.obj
+[62/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/mpprint.c.obj
+[63/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/mpstate.c.obj
+[64/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/nativeglue.c.obj
+[65/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/nlr.c.obj
+[66/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/mpz.c.obj
+[67/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/nlraarch64.c.obj
+[68/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/nlrmips.c.obj
+[69/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/nlrpowerpc.c.obj
+[70/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/nlrrv32.c.obj
+[71/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/nlrrv64.c.obj
+[72/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/nlrsetjmp.c.obj
+[73/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/nlrthumb.c.obj
+[74/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/nlrx64.c.obj
+[75/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/nlrx86.c.obj
+[76/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/nlrxtensa.c.obj
+[77/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/obj.c.obj
+[78/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objattrtuple.c.obj
+[79/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objarray.c.obj
+[80/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objbool.c.obj
+[81/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objboundmeth.c.obj
+[82/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objcode.c.obj
+[83/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objcell.c.obj
+[84/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objclosure.c.obj
+[85/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objcomplex.c.obj
+[86/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objenumerate.c.obj
+[87/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objdeque.c.obj
+[88/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objdict.c.obj
+[89/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objexcept.c.obj
+[90/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objfilter.c.obj
+[91/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objfloat.c.obj
+[92/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objfun.c.obj
+[93/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objgetitemiter.c.obj
+[94/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objgenerator.c.obj
+[95/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objint_longlong.c.obj
+[96/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objint.c.obj
+[97/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objint_mpz.c.obj
+[98/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objmap.c.obj
+[99/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objmodule.c.obj
+[100/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objlist.c.obj
+[101/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objnone.c.obj
+[102/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objnamedtuple.c.obj
+[103/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objobject.c.obj
+[104/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objpolyiter.c.obj
+[105/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objproperty.c.obj
+[106/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objrange.c.obj
+[107/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objreversed.c.obj
+[108/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objringio.c.obj
+[109/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objsingleton.c.obj
+[110/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objslice.c.obj
+[111/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objset.c.obj
+[112/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objstringio.c.obj
+[113/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objstrunicode.c.obj
+[114/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objstr.c.obj
+[115/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objtuple.c.obj
+[116/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objzip.c.obj
+[117/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/objtype.c.obj
+[118/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/opmethods.c.obj
+[119/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/pairheap.c.obj
+[120/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/parsenumbase.c.obj
+[121/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/parsenum.c.obj
+[122/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/parse.c.obj
+[123/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/profile.c.obj
+[124/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/persistentcode.c.obj
+[125/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/pystack.c.obj
+[126/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/qstr.c.obj
+[127/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/reader.c.obj
+[128/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/ringbuf.c.obj
+[129/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/repl.c.obj
+[130/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/runtime_utils.c.obj
+[131/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/runtime.c.obj
+[132/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/scope.c.obj
+[133/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/scheduler.c.obj
+[134/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/sequence.c.obj
+[135/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/showbc.c.obj
+[136/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/smallint.c.obj
+[137/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/stackctrl.c.obj
+[138/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/unicode.c.obj
+[139/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/warning.c.obj
+[140/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/vstr.c.obj
+[141/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/stream.c.obj
+[142/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/py/vm.c.obj
+[143/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/shared/libc/abort_.c.obj
+[144/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/shared/libc/printf.c.obj
+[145/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/btstack/modbluetooth_btstack.c.obj
+[146/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/machine_adc_block.c.obj
+[147/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/machine_adc.c.obj
+[148/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/machine_bitstream.c.obj
+[149/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/machine_i2c_target.c.obj
+[150/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/machine_i2c.c.obj
+[151/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/machine_mem.c.obj
+[152/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/machine_i2s.c.obj
+[153/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/machine_pulse.c.obj
+[154/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/machine_pwm.c.obj
+[155/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/machine_signal.c.obj
+[156/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/machine_spi.c.obj
+[157/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/machine_usb_device.c.obj
+[158/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/machine_wdt.c.obj
+[159/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/machine_uart.c.obj
+[160/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modlwip.c.obj
+[161/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modframebuf.c.obj
+[162/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modbluetooth.c.obj
+[163/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modmachine.c.obj
+[164/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modmarshal.c.obj
+[165/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modnetwork.c.obj
+[166/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modbinascii.c.obj
+[167/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modonewire.c.obj
+[168/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modasyncio.c.obj
+[169/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/moductypes.c.obj
+[170/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modcryptolib.c.obj
+[171/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/moddeflate.c.obj
+[172/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modheapq.c.obj
+[173/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modjson.c.obj
+[174/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modhashlib.c.obj
+[175/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modos.c.obj
+[176/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modplatform.c.obj
+[177/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modrandom.c.obj
+[178/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modre.c.obj
+[179/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modsocket.c.obj
+[180/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modtls_axtls.c.obj
+[181/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modselect.c.obj
+[182/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modtime.c.obj
+[183/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modvfs.c.obj
+[184/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modwebsocket.c.obj
+[185/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/network_cyw43.c.obj
+[186/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modwebrepl.c.obj
+[187/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modtls_mbedtls.c.obj
+[188/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/network_lwip.c.obj
+[189/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/network_ninaw10.c.obj
+[190/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/network_ppp_lwip.c.obj
+[191/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/network_wiznet5k.c.obj
+[192/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/os_dupterm.c.obj
+[193/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/vfs_blockdev.c.obj
+[194/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/vfs.c.obj
+[195/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/vfs_fat.c.obj
+[196/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/vfs_fat_file.c.obj
+[197/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/vfs_fat_diskio.c.obj
+[198/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/vfs_lfs.c.obj
+[199/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/vfs_rom.c.obj
+[200/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/vfs_rom_file.c.obj
+[201/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/vfs_posix.c.obj
+[202/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/vfs_posix_file.c.obj
+[203/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/vfs_reader.c.obj
+[204/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/virtpin.c.obj
+[205/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/shared/timeutils/timeutils.c.obj
+[206/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/modbtree.c.obj
+[207/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/shared/netutils/netutils.c.obj
+[208/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/shared/runtime/interrupt_char.c.obj
+[209/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/shared/readline/readline.c.obj
+[210/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/extmod/nimble/modbluetooth_nimble.c.obj
+[211/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/shared/runtime/stdout_helpers.c.obj
+[212/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/shared/runtime/mpirq.c.obj
+[213/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/shared/runtime/sys_stdio_mphal.c.obj
+[214/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/shared/runtime/pyexec.c.obj
+[215/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/lib/oofatfs/ffunicode.c.obj
+[216/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/lib/oofatfs/ff.c.obj
+[217/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/panichandler.c.obj
+[218/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/drivers/bus/softspi.c.obj
+[219/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mnt/c/Users/BALAJI/Desktop/micropython/micropython/drivers/dht/dht.c.obj
+[220/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/adc.c.obj
+[221/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/uart.c.obj
+[222/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/usb.c.obj
+[223/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/usb_serial_jtag.c.obj
+[224/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/main.c.obj
+[225/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/gccollect.c.obj
+[226/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/mphalport.c.obj
+[227/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/fatfs_port.c.obj
+[228/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/help.c.obj
+[229/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/machine_bitstream.c.obj
+[230/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/machine_timer.c.obj
+[231/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/machine_pin.c.obj
+[232/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/machine_dac.c.obj
+[233/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/machine_touchpad.c.obj
+[234/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/machine_i2c.c.obj
+[235/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/network_lan.c.obj
+[236/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/network_common.c.obj
+[237/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/mpnimbleport.c.obj
+[238/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/network_wlan.c.obj
+[239/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/network_ppp.c.obj
+[240/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/modsocket.c.obj
+[241/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/lwip_patch.c.obj
+[242/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/modesp.c.obj
+[243/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/esp32_nvs.c.obj
+[244/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/esp32_partition.c.obj
+[245/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/esp32_pcnt.c.obj
+[246/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/esp32_ulp.c.obj
+[247/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/esp32_ldo.c.obj
+[248/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/esp32_rmt.c.obj
+[249/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/modesp32.c.obj
+[250/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/mpthreadport.c.obj
+[251/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/machine_hw_spi.c.obj
+[252/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/machine_rtc.c.obj
+[253/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/machine_sdcard.c.obj
+[254/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/__/pins.c.obj
+[255/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/modespnow.c.obj
+[256/262] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/__/__/frozen_content.c.obj
+[257/262] Linking C static library esp-idf/main/libmain.a
+[258/262] Generating ld/sections.ld
+[259/262] Building C object CMakeFiles/micropython.elf.dir/project_elf_src_esp32.c.obj
+[260/262] Linking CXX executable micropython.elf
+[261/262] Generating binary image from built executable
+esptool.py v4.11.0
+Creating esp32 image...
+Merged 2 ELF sections
+Successfully created esp32 image.
+Generated /mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32/build-ESP32_GENERIC/micropython.bin
+[262/262] cd /mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32/build-ESP32_GENERIC/esp-idf/esptool_py && /home/balaji/.espressif/python_env/idf5.2_py3.12_env/bin/python3 /mnt/c/Users/BALAJI/Desktop/micropython/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32/build-ESP32_GENERIC/partition_table/partition-table.bin /mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32/build-ESP32_GENERIC/micropython.bin
+micropython.bin binary size 0x195ef0 bytes. Smallest app partition is 0x1f0000 bytes. 0x5a110 bytes (18%) free.
+
+Project build complete. To flash, run:
+ idf.py flash
+or
+ idf.py -p PORT flash
+or
+ python -m esptool --chip esp32 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 4MB --flash_freq 40m 0x1000 build-ESP32_GENERIC/bootloader/bootloader.bin 0x8000 build-ESP32_GENERIC/partition_table/partition-table.bin 0x10000 build-ESP32_GENERIC/micropython.bin
+or from the "/mnt/c/Users/BALAJI/Desktop/micropython/micropython/ports/esp32/build-ESP32_GENERIC" directory
+ python -m esptool --chip esp32 -b 460800 --before default_reset --after hard_reset write_flash "@flash_args"

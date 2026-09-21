@@ -6,7 +6,7 @@
 
 # Set location of base MicroPython directory.
 if(NOT MICROPY_DIR)
-    get_filename_component(MICROPY_DIR ${CMAKE_CURRENT_LIST_DIR}/../.. ABSOLUTE)
+    get_filename_component(MICROPY_DIR ${CMAKE_CURRENT_LIST_DIR}/../../.. ABSOLUTE)
 endif()
 
 # Set location of the ESP32 port directory.
@@ -43,7 +43,7 @@ if(NOT CMAKE_BUILD_EARLY_EXPANSION)
     # Enable extmod components that will be configured by extmod.cmake.
     # A board may also have enabled additional components.
     if (NOT DEFINED MICROPY_PY_BTREE)
-        set(MICROPY_PY_BTREE ON)
+        set(MICROPY_PY_BTREE OFF)
     endif()
 
     include(${MICROPY_DIR}/py/usermod.cmake)
@@ -169,7 +169,7 @@ list(APPEND IDF_COMPONENTS
     esp_app_format
     esp_mm
     esp_common
-    esp_driver_touch_sens
+#    esp_driver_touch_sens
     esp_eth
     esp_event
     esp_hw_support

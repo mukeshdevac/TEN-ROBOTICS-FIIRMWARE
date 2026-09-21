@@ -14,21 +14,12 @@ CONFIG_APP_EXCLUDE_PROJECT_NAME_VAR=y
 # Bootloader config
 CONFIG_BOOTLOADER_LOG_LEVEL_WARN=y
 CONFIG_BOOTLOADER_SKIP_VALIDATE_IN_DEEP_SLEEP=y
-CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=y
+# Rollback requires ota_data+ota_0 partitions. Our partition table has none.
+CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=n
 
-# Change default log level to "ERROR" (instead of "INFO")
-CONFIG_LOG_DEFAULT_LEVEL_ERROR=y
-
-# Set the maximum included log level higher than the default,
-# so esp.osdebug() can enable more logging at runtime.
-#
-# To increase the max log verbosity to Debug or Verbose instead, comment
-# CONFIG_LOG_MAXIMUM_LEVEL_INFO=y and uncomment one of the other settings.
-#
-# If not needed, the next line can be commented entirely to save binary size.
-CONFIG_LOG_MAXIMUM_LEVEL_INFO=y
-#CONFIG_LOG_MAXIMUM_LEVEL_DEBUG=y
-#CONFIG_LOG_MAXIMUM_LEVEL_VERBOSE=y
+# ESP-IDF Log Level Config (Clean output, no debug spam)
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y
+CONFIG_LOG_DEFAULT_LEVEL=3
 
 # Main XTAL Config
 # Only on: ESP32

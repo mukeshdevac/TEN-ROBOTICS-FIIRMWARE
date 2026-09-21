@@ -80,7 +80,7 @@ static const mp_rom_obj_tuple_t mp_sys_implementation_version_info_obj = {
 };
 static const MP_DEFINE_STR_OBJ(mp_sys_implementation_machine_obj, MICROPY_BANNER_MACHINE);
 #define SYS_IMPLEMENTATION_ELEMS_BASE \
-    MP_ROM_QSTR(MP_QSTR_micropython), \
+    MP_ROM_QSTR(MICROPY_PY_SYS_IMPLEMENTATION_NAME), \
     MP_ROM_PTR(&mp_sys_implementation_version_info_obj), \
     MP_ROM_PTR(&mp_sys_implementation_machine_obj)
 

@@ -10,28 +10,7 @@ def check_bootsec():
         if b != 0xFF:
             empty = False
             break
-    if empty:
-        return True
-    fs_corrupted()
-
-
-def fs_corrupted():
-    import time
-    import micropython
-
-    # Allow this loop to be stopped via Ctrl-C.
-    micropython.kbd_intr(3)
-
-    while 1:
-        print(
-            """\
-The filesystem appears to be corrupted. If you had important data there, you
-may want to make a flash snapshot to try to recover it. Otherwise, perform
-factory reprogramming of MicroPython firmware (completely erase flash, followed
-by firmware programming).
-"""
-        )
-        time.sleep(3)
+    return True # Auto format on setup
 
 
 def setup():
