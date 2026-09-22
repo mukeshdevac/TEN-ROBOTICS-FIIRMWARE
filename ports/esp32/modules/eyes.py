@@ -1,5 +1,4 @@
 from machine import Pin, I2C
-import ssd1306
 import time
 import math
 import random

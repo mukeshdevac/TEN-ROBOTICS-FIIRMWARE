@@ -1,7 +1,7 @@
 import sys
 if '' not in sys.path:
     sys.path.insert(0, '')
-for mod in ['store_manager', 'ten', 'sync_master', 'hardware', 'buzzer', 'eyes', 'logo']:
+for mod in ['store_manager', 'ten', 'hardware', 'buzzer', 'eyes', 'logo']:
     if mod in sys.modules:
         del sys.modules[mod]
 
