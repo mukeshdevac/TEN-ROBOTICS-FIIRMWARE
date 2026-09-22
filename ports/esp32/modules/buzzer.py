@@ -63,10 +63,10 @@ class Buzzer:
         self.tone(2000, 25, duty=256)
 
     def play_error(self):
-        """Double low-pitch alert buzz for execution errors."""
-        self.tone(220, 140, duty=768)
-        time.sleep_ms(70)
-        self.tone(220, 200, duty=768)
+        """Double low-pitch alert buzz for execution errors (fast & responsive)."""
+        self.tone(350, 60, duty=512)
+        time.sleep_ms(30)
+        self.tone(220, 80, duty=512)
 
 # Global Buzzer singleton instance
 buzzer = Buzzer()

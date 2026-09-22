@@ -130,4 +130,9 @@ def get_eyes():
     except Exception:
         pass
     i2c = I2C(0, sda=Pin(21), scl=Pin(22))
-    return HighFidEyes(ssd1306.SSD1306_I2C(128, 64, i2c))
+    try:
+        import sh1106
+        return HighFidEyes(sh1106.SH1106_I2C(128, 64, i2c))
+    except Exception:
+        import ssd1306
+        return HighFidEyes(ssd1306.SSD1306_I2C(128, 64, i2c))

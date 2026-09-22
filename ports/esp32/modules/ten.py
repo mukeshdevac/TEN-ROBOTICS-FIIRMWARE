@@ -102,34 +102,45 @@ class Sensor:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Display Wrapper
+# OLED Display Wrapper
 # ─────────────────────────────────────────────────────────────────────────────
 class DisplayWrapper:
     def __init__(self, display_obj):
-        self.tft = display_obj
+        self.oled = display_obj
 
     def clear(self):
-        if self.tft:
-            self.tft.fill(0x0000)
-
-    def text(self, msg, x=20, y=20, color=0xFFFF, scale=2):
-        if self.tft:
+        if self.oled:
             try:
-                self.tft.text(str(msg), x, y, color, scale=scale)
-            except TypeError:
-                self.tft.text(str(msg), x, y, color)
+                self.oled.fill(0)
+                if hasattr(self.oled, 'show'):
+                    self.oled.show()
+            except Exception:
+                pass
+
+    def text(self, msg, x=0, y=0, color=1):
+        if self.oled:
+            try:
+                self.oled.text(str(msg), x, y, color)
+                if hasattr(self.oled, 'show'):
+                    self.oled.show()
+            except Exception:
+                pass
 
     def emoji(self, name):
-        if not self.tft:
+        if not self.oled:
             return
-        if hasattr(self.tft, 'fill'):
-            self.tft.fill(0x0000)
-        if name == 'smile':
-            self.text(":-)", 40, 20, scale=2)
-        elif name == 'heart':
-            self.text("<3", 40, 20, scale=2)
-        else:
-            self.text(f"[{name}]", 20, 20, scale=2)
+        try:
+            self.oled.fill(0)
+            if name == 'smile':
+                self.oled.text(":-)", 45, 25, 1)
+            elif name == 'heart':
+                self.oled.text("<3", 50, 25, 1)
+            else:
+                self.oled.text(f"[{name}]", 30, 25, 1)
+            if hasattr(self.oled, 'show'):
+                self.oled.show()
+        except Exception:
+            pass
 
 
 # Physical Button Pins
@@ -143,25 +154,28 @@ else:
     display = DisplayWrapper(None)
 
 def is_running():
-    """Polls Physical Button (GPIO 16), Touch STOP button & serial to safely interrupt execution."""
+    """Polls Physical Button (GPIO 16) & serial to safely interrupt execution."""
     # 1. Physical Start/Stop Button check (Active Low)
     if _btn_start.value() == 0:
         buzzer.play_stop()
         raise KeyboardInterrupt("STOPPED_BY_PHYSICAL_BUTTON")
         
-    # 2. Touch & Store Manager check
+    # 2. Store Manager check
     if store_manager and store_manager.manager:
         mgr = store_manager.manager
-        if mgr.touch_ide and mgr.touch_ide.check_stop_touch():
-            buzzer.play_stop()
-            raise KeyboardInterrupt("STOPPED_BY_TOUCH")
         if mgr.prog_status != "RUNNING" or not mgr._in_exec:
             buzzer.play_stop()
             raise KeyboardInterrupt("STOPPED_BY_USER")
     return True
 
+def start():
+    """Initializes runtime references for user scripts."""
+    global display
+    if store_manager and store_manager.manager:
+        display.oled = store_manager.manager.display
+
 def delay(ms):
-    """Interruptible sleep — checks physical/touch stop buttons every 10ms."""
+    """Interruptible sleep — checks physical stop button and status every 10ms."""
     start_t = time.ticks_ms()
     while time.ticks_diff(time.ticks_ms(), start_t) < ms:
         is_running()

@@ -1,7 +1,7 @@
 import sys
 if '' not in sys.path:
     sys.path.insert(0, '')
-for mod in ['store_manager', 'ten', 'sync_master', 'hardware', 'buzzer', 'eyes']:
+for mod in ['store_manager', 'ten', 'sync_master', 'hardware', 'buzzer', 'eyes', 'logo']:
     if mod in sys.modules:
         del sys.modules[mod]
 
@@ -43,9 +43,10 @@ def main():
             mgr = store_manager.manager
 
             if mgr:
-                mgr.poll_touch()
                 mgr.poll_serial()
+                mgr.poll_buttons()
                 mgr.poll_power_telemetry()
+                mgr.poll_ui()
 
             if hasattr(mgr, 'pending_start') and mgr.pending_start:
                 mgr.pending_start = False
@@ -60,7 +61,10 @@ def main():
                 except Exception:
                     fsize = 0
 
-                if fsize > 0:
+                if fsize <= 0:
+                    print("MAIN: No program found (app.py empty) - halting execution.")
+                    mgr.stop_prog("NO SCRIPT")
+                else:
                     current_session = mgr.exec_start_ticks
                     
                     def check_abort():
@@ -99,16 +103,17 @@ def main():
                         # Play Error Sound Tone
                         buzzer.play_error()
                         
-                        # Render Error Screen on OLED Display
+                        # Render Error Screen on OLED Display with clean layout
                         if mgr.display and not mgr.is_uploading:
                             try:
                                 d = mgr.display
                                 d.fill(0)
-                                d.text("[SYSTEM ERROR]", 5, 5, 1)
-                                err_name = type(e).__name__[:15]
-                                err_msg = str(e)[:16]
-                                d.text(err_name, 5, 25, 1)
-                                d.text(err_msg, 5, 45, 1)
+                                d.fill_rect(0, 0, 128, 12, 1)
+                                d.text("SYSTEM ERROR", 16, 2, 0)
+                                err_name = type(e).__name__[:14]
+                                err_msg = str(e)[:14]
+                                d.text(err_name, 8, 26, 1)
+                                d.text(err_msg, 8, 44, 1)
                                 d.show()
                             except Exception:
                                 pass
