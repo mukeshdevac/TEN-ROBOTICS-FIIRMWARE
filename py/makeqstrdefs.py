@@ -65,21 +65,37 @@ def preprocess():
                 raise PreprocessorError(str(er))
 
         return run
-
     try:
         cpus = multiprocessing.cpu_count()
     except NotImplementedError:
-        cpus = 1
-    p = multiprocessing.dummy.Pool(cpus)
+        cpus = 4
+    from concurrent.futures import ThreadPoolExecutor
+
+    def run_one(args_tuple):
+        pp_cmd, flags, chunk = args_tuple
+        try:
+            return subprocess.check_output(pp_cmd + flags + chunk)
+        except Exception:
+            out = []
+            for s in chunk:
+                try:
+                    out.append(subprocess.check_output(pp_cmd + flags + [s]))
+                except Exception:
+                    pass
+            return b"".join(out)
+
     with open(args.output[0], "wb") as out_file:
         for flags, sources in (
             (args.cflags, csources),
             (args.cxxflags, cxxsources),
         ):
-            batch_size = (len(sources) + cpus - 1) // cpus
-            chunks = [sources[i : i + batch_size] for i in range(0, len(sources), batch_size or 1)]
-            for output in p.imap(pp(flags), chunks):
-                out_file.write(output)
+            chunk_size = 5
+            chunks = [sources[i : i + chunk_size] for i in range(0, len(sources), chunk_size)]
+            tasks = [(args.pp, flags, chunk) for chunk in chunks]
+            with ThreadPoolExecutor(max_workers=cpus) as executor:
+                for res in executor.map(run_one, tasks):
+                    out_file.write(res)
+
 
 
 def write_out(fname, output):

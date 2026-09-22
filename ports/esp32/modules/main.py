@@ -93,33 +93,44 @@ def main():
                             mgr.stop_prog()
                     except KeyboardInterrupt:
                         mgr._in_exec = False
-                        print(f"--- EXEC INTERRUPT (Session {current_session}) ---")
-                        mgr.stop_prog()
+                        print(f"--- EXEC STOPPED (Session {current_session}) ---")
+                        mgr.stop_prog("STOPPED")
                     except BaseException as e:
                         mgr._in_exec = False
                         print(f"--- EXEC ERROR (Session {current_session}) ---")
                         sys.print_exception(e)
-                        
-                        # Play Error Sound Tone
+
+                        # Emit structured error for App Toast and Serial Terminal
+                        err_name = type(e).__name__
+                        err_msg = str(e)
+                        if hasattr(mgr, 'send_response'):
+                            mgr.send_response(f"ERR:{err_name}: {err_msg}\n")
+                            mgr.send_response("STATUS:STOPPED\n")
+
+                        # Safety: immediately stop all motors & actuators
+                        if hasattr(mgr, '_stop_all_motors'):
+                            mgr._stop_all_motors()
+
+                        # Audio alert
                         buzzer.play_error()
-                        
-                        # Render Error Screen on OLED Display with clean layout
+
+                        # Render Error Screen on OLED Display with clean readable layout
                         if mgr.display and not mgr.is_uploading:
                             try:
                                 d = mgr.display
                                 d.fill(0)
                                 d.fill_rect(0, 0, 128, 12, 1)
                                 d.text("SYSTEM ERROR", 16, 2, 0)
-                                err_name = type(e).__name__[:14]
-                                err_msg = str(e)[:14]
-                                d.text(err_name, 8, 26, 1)
-                                d.text(err_msg, 8, 44, 1)
+                                d.text(f"Type: {err_name[:12]}", 4, 20, 1)
+                                d.text(f"Msg: {err_msg[:14]}", 4, 34, 1)
+                                d.text("BTN1 to return", 4, 52, 1)
                                 d.show()
                             except Exception:
                                 pass
-                                
+
                         mgr.stop_prog(e)
                     finally:
+                        mgr._in_exec = False
                         exec_globals.clear()
                         gc.collect()
 
@@ -128,7 +139,11 @@ def main():
                 time.sleep_ms(30)
 
         except KeyboardInterrupt:
-            break
+            # Prevent REPL exit from breaking the firmware loop
+            if mgr:
+                mgr._in_exec = False
+                mgr.stop_prog()
+            time.sleep_ms(100)
         except Exception as e:
             print("Main loop caught top-level exception (OS STABLE):")
             sys.print_exception(e)

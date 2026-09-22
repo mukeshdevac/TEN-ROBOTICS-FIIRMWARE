@@ -57,6 +57,10 @@ class StoreManager:
         self.pending_start        = False
         self.exec_start_ticks     = 0
         self.is_uploading         = False
+        self._upload_fp           = None
+        self._upload_total_lines  = 0
+        self._upload_received_lines = 0
+        self._upload_filename     = "app.py"
         self.last_power_telemetry = 0
 
         # Multi-Page Display State (7 Pages Total)
@@ -237,6 +241,37 @@ class StoreManager:
                 self.display.text("TEN ROBOTICS", 16, 20, 1)
                 self.display.text("ESP32 READY", 20, 38, 1)
                 self.display.show()
+            except Exception:
+                pass
+
+    def draw_upload_progress(self, pct, filename="app.py"):
+        """Render upload screen on OLED display with progress bar."""
+        if not self.display:
+            return
+        try:
+            d = self.display
+            d.fill(0)
+            d.fill_rect(0, 0, 128, 12, 1)
+            d.text("DOWNLOADING", 16, 2, 0)
+            d.text(f"File: {filename[:10]}", 8, 20, 1)
+            d.rect(14, 36, 100, 12, 1)
+            fill_w = max(0, min(96, int(pct * 96 / 100)))
+            if fill_w > 0:
+                d.fill_rect(16, 38, fill_w, 8, 1)
+            d.text(f"{pct}%", 52, 52, 1)
+            d.show()
+        except Exception:
+            pass
+
+    def send_response(self, text):
+        """Broadcast status or telemetry to both UART stdout and BLE console."""
+        try:
+            sys.stdout.write(text)
+        except Exception:
+            pass
+        if hasattr(self, 'ble_mgr') and self.ble_mgr:
+            try:
+                self.ble_mgr.send_console(text)
             except Exception:
                 pass
 
@@ -715,8 +750,17 @@ class StoreManager:
                         self.handle_btn2_page_cycle()
 
         # BTN1: Contextual Action Button (Active Low, GPIO 16)
-        if not self._in_exec and not self.is_uploading:
-            btn1_val = self.btn_start.value()
+        btn1_val = self.btn_start.value()
+        if self._in_exec or self.prog_status == "RUNNING":
+            # If executing, BTN1 or BTN2 click triggers immediate graceful abort
+            if btn1_val == 0 or btn2_val == 0:
+                if not self.btn1_down:
+                    self.btn1_down = True
+                    buzzer.play_stop()
+                    self.request_abort()
+            else:
+                self.btn1_down = False
+        elif not self.is_uploading:
             if btn1_val == 0:
                 self.last_activity_ticks = now
                 if not self.btn1_down:
@@ -810,22 +854,108 @@ class StoreManager:
                 pass
 
     def poll_serial(self):
-        """Poll incoming serial & BLE commands."""
-        events = self._poller.poll(0)
-        if events:
-            self.record_activity()
-            line = sys.stdin.readline().strip()
-            if line == "START":
-                self.start_prog()
-            elif line == "STOP":
-                self.stop_prog()
-            elif line == "PAGE":
-                self.handle_btn2_page_cycle()
+        """Poll incoming serial commands from USB CDC."""
+        try:
+            events = self._poller.poll(0)
+            if events:
+                self.record_activity()
+                line = sys.stdin.readline()
+                if line:
+                    self.process_line(line)
+        except Exception:
+            pass
 
-    def poll_power_telemetry(self):
-        """Read voltage/current, update live stats, low-battery alert, and BLE telemetry."""
+    def process_line(self, line):
+        """Unified command and upload protocol processor for Serial & BLE."""
+        line = line.strip("\r\n").strip()
+        if not line:
+            return
+
+        if self.is_uploading:
+            if self._upload_fp:
+                try:
+                    self._upload_fp.write(line + "\n")
+                    self._upload_received_lines += 1
+                    if self._upload_total_lines > 0:
+                        pct = int((self._upload_received_lines / self._upload_total_lines) * 100)
+                        self.draw_upload_progress(pct, self._upload_filename)
+                    self.send_response("UPLOAD:OK\n")
+                    if self._upload_received_lines >= self._upload_total_lines:
+                        try:
+                            self._upload_fp.close()
+                        except Exception:
+                            pass
+                        self._upload_fp = None
+                        self.is_uploading = False
+                        buzzer.tone(2000, 80)
+                        self.render_active_page()
+                        self.send_response("UPLOAD:COMPLETE\n")
+                except Exception as e:
+                    print(f"Upload write error: {e}")
+                    self.send_response(f"ERR:UPLOAD:{e}\n")
+            return
+
+        if line.startswith("BEGIN_UPLOAD:"):
+            parts = line.split(":")
+            try:
+                total_lines = int(parts[1])
+                filename = parts[2] if len(parts) > 2 else "app.py"
+            except Exception:
+                total_lines = 0
+                filename = "app.py"
+
+            self.is_uploading = True
+            self._upload_total_lines = total_lines
+            self._upload_received_lines = 0
+            self._upload_filename = filename
+            try:
+                self._upload_fp = open(filename, "w")
+            except Exception as e:
+                print("Upload open error:", e)
+                self.is_uploading = False
+                self.send_response("UPLOAD:ERR\n")
+                return
+
+            self.draw_upload_progress(0, filename)
+            self.send_response("UPLOAD:READY\n")
+
+        elif line == "START" or line == "RUN":
+            self.start_prog()
+
+        elif line == "STOP":
+            self.request_abort()
+
+        elif line == "CLEAR":
+            self.is_uploading = False
+            if self._upload_fp:
+                try:
+                    self._upload_fp.close()
+                except Exception:
+                    pass
+                self._upload_fp = None
+
+        elif line == "SYNC" or line == "STATUS":
+            self.send_response(f"STATUS:{self.prog_status}\n")
+            self.poll_power_telemetry(force=True)
+
+        elif line == "PAGE":
+            self.handle_btn2_page_cycle()
+
+    def request_abort(self):
+        """Instantly requests user code abortion, stopping motors and interrupting bytecode."""
+        self.stop_prog()
+        def _abort_cb(t):
+            raise KeyboardInterrupt("STOPPED_BY_USER")
+        try:
+            import micropython
+            micropython.schedule(_abort_cb, 0)
+        except Exception:
+            pass
+
+    def poll_power_telemetry(self, force=False):
+        """Read voltage/current, update live stats, low-battery alert, and broadcast telemetry."""
         now = time.ticks_ms()
-        if time.ticks_diff(now, self.last_power_telemetry) >= 2000:
+        if force or time.ticks_diff(now, self.last_power_telemetry) >= 2000:
             self.last_power_telemetry = now
             try:
                 if self.ina219:
@@ -853,9 +983,9 @@ class StoreManager:
                         time.sleep_ms(30)
                         buzzer.tone(440, 50)
 
-                telemetry_str = f"POWER:{{\"v\":{volts},\"pct\":{pct},\"ma\":{current_ma}}}\n"
-                if self.ble_stream:
-                    self.ble_stream.write(telemetry_str.encode())
+                power_mw = round(abs(volts * current_ma), 1)
+                telemetry_str = f"POWER:V={volts:.2f},I={current_ma:.1f},P={power_mw:.1f},B={pct}\n"
+                self.send_response(telemetry_str)
             except Exception:
                 pass
 
@@ -876,6 +1006,7 @@ class StoreManager:
             self._in_exec = False
             self.last_error = "NO CODE"
             buzzer.play_error()
+            self.send_response("STATUS:STOPPED\n")
             self.render_active_page()
             return
 
@@ -884,6 +1015,7 @@ class StoreManager:
         self._in_exec = True
         buzzer.play_run()
         print(f"MGR: Program Execution Started (Session {self.exec_start_ticks})")
+        self.send_response("STATUS:RUNNING\n")
         self.render_active_page()
 
     def stop_prog(self, err=None):
@@ -892,6 +1024,7 @@ class StoreManager:
         self.last_error = str(err) if err else None
         buzzer.play_stop()
         print("MGR: Program Execution Stopped.")
+        self.send_response("STATUS:STOPPED\n")
 
         # Safety reset for motor and output pins (no LEDC channel exhaustion)
         self._stop_all_motors()
