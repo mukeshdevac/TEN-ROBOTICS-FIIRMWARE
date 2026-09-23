@@ -109,6 +109,41 @@ class HighFidEyes:
         self.pupil_y = y
         self.render()
 
+    def angry(self):
+        self.style = "normal"
+        self.pupil_x = 0
+        self.pupil_y = 2
+        self.eye_scale_y = 0.6
+        self.render()
+
+    def sad(self):
+        self.style = "normal"
+        self.pupil_x = 0
+        self.pupil_y = 4
+        self.eye_scale_y = 0.5
+        self.render()
+
+    def surprised(self):
+        self.style = "normal"
+        self.pupil_x = 0
+        self.pupil_y = 0
+        self.eye_scale_y = 1.2
+        self.render()
+
+    def squint(self):
+        self.style = "normal"
+        self.pupil_x = 0
+        self.pupil_y = 0
+        self.eye_scale_y = 0.3
+        self.render()
+
+    def thinking(self):
+        self.style = "normal"
+        self.pupil_x = 5
+        self.pupil_y = -4
+        self.eye_scale_y = 0.8
+        self.render()
+
     def move_big_eye(self, direction):
         target_x = 6 * direction
         steps = 4

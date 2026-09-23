@@ -1,7 +1,7 @@
 """
 TEN Robotics - Store Manager & System Lifecycle for ESP32 DevKit V1 (PCB V2)
-Integrates Original Logo Boot Screen, 5-Page Multi-Screen UI, Always-On BLE,
-Interactive Motor Tester, Live Sensor HUD, and Low-Battery Alarm Configuration.
+Integrates Original Logo Boot Screen, 7-Page Multi-Screen UI, Always-On BLE with NUS & LOF,
+Interactive Motor Tester, Live Sensor HUD, Closed-Loop Upload Engine, and Battery Telemetry.
 Website: https://www.tenrobotics.in/
 """
 
@@ -26,25 +26,7 @@ _MOTOR_PIN_MAP = [
     (hardware.OUT1, hardware.OUT2),     # 3: OUT 1/2
 ]
 
-class BLEStream(io.IOBase):
-    """Stream wrapper to route print() outputs over BLE Web Serial and console."""
-    def __init__(self, manager):
-        self.mgr = manager
 
-    def write(self, data):
-        if not data:
-            return 0
-        if self.mgr and hasattr(self.mgr, 'send_ble_data'):
-            self.mgr.send_ble_data(data)
-        return len(data)
-
-    def readinto(self, buf):
-        return None
-
-    def ioctl(self, req, arg):
-        if req == 4:  # MP_STREAM_POLL
-            return 2  # MP_STREAM_POLL_WR (always writable)
-        return 0
 
 
 class StoreManager:
@@ -57,11 +39,8 @@ class StoreManager:
         self.pending_start        = False
         self.exec_start_ticks     = 0
         self.is_uploading         = False
-        self._upload_fp           = None
-        self._upload_total_lines  = 0
-        self._upload_received_lines = 0
-        self._upload_filename     = "app.py"
         self.last_power_telemetry = 0
+        self.serial_active        = True
 
         # Multi-Page Display State (7 Pages Total)
         self.total_pages          = 7
@@ -71,6 +50,16 @@ class StoreManager:
         self.last_pct             = 0
         self.last_ma              = 0.0
         self.dev_name             = "TEN_DEVKIT"
+
+        # Protocol Buffers & Upload State
+        self._serial_buf          = bytearray()
+        self._ble_buf             = bytearray()
+        self._wifi_buf            = bytearray()
+        self._upload_file         = None
+        self._upload_total_lines  = 0
+        self._upload_current_line = 0
+        self._upload_target_file  = "app.py"
+        self._last_upload_ui_update = 0
 
         # Feature 1: Low Battery Alarm Configuration
         self.low_batt_alarm_enabled = True
@@ -164,7 +153,7 @@ class StoreManager:
         except Exception as e:
             print("MGR: Screensaver Init Warning:", e)
 
-        # Cyber Dinosaur Mascot Runner Mini-Game (6th Screen)
+        # Cyber Dinosaur Mascot Runner Mini-Game (7th Screen)
         self.runner_game = None
         try:
             import runner_game
@@ -196,8 +185,8 @@ class StoreManager:
         except Exception as e:
             print("Audio Init Warning:", e)
 
-        # Hold boot logo for 1.5s for clean startup experience
-        time.sleep_ms(1500)
+        # Hold boot logo for 1.2s for clean startup experience
+        time.sleep_ms(1200)
 
         # Initialize Always-On Bluetooth (BLE) Manager
         self.ble_mgr = None
@@ -210,16 +199,17 @@ class StoreManager:
         except Exception as e:
             print("MGR: BLE Init Warning:", e)
 
+        # Initialize WiFi & WebSocket Server Engine
+        self.wifi_mgr = None
+        try:
+            import wifi_manager
+            self.wifi_mgr = wifi_manager.WiFiManager(self)
+            print(f"MGR: WiFi WebSocket Server Active ({self.wifi_mgr.ip_address}:8266).")
+        except Exception as e:
+            print("MGR: WiFi Init Warning:", e)
+
         # Transition to initial interactive UI page
         self.render_active_page()
-
-        # Setup Dupterm for Console Streaming
-        try:
-            self.ble_stream = BLEStream(self)
-            uos.dupterm(self.ble_stream)
-            print("MGR: BLE Dupterm Output Active.")
-        except Exception as e:
-            print("MGR: Dupterm Init Warning:", e)
 
         # Serial Poller
         self._poller = select.poll()
@@ -244,62 +234,34 @@ class StoreManager:
             except Exception:
                 pass
 
-    def draw_upload_progress(self, pct, filename="app.py"):
-        """Render upload screen on OLED display with progress bar."""
-        if not self.display:
-            return
-        try:
-            d = self.display
-            d.fill(0)
-            d.fill_rect(0, 0, 128, 12, 1)
-            d.text("DOWNLOADING", 16, 2, 0)
-            d.text(f"File: {filename[:10]}", 8, 20, 1)
-            d.rect(14, 36, 100, 12, 1)
-            fill_w = max(0, min(96, int(pct * 96 / 100)))
-            if fill_w > 0:
-                d.fill_rect(16, 38, fill_w, 8, 1)
-            d.text(f"{pct}%", 52, 52, 1)
-            d.show()
-        except Exception:
-            pass
-
-    def send_response(self, text):
-        """Broadcast status or telemetry to both UART stdout and BLE console."""
-        try:
-            sys.stdout.write(text)
-        except Exception:
-            pass
-        if hasattr(self, 'ble_mgr') and self.ble_mgr:
-            try:
-                self.ble_mgr.send_console(text)
-            except Exception:
-                pass
-
     # ─────────────────────────────────────────────────────────────────────────────
     # Page Renderers
     # ─────────────────────────────────────────────────────────────────────────────
 
     def render_page_connection(self):
-        """Page 0 (1/7: SYSTEM): Bluetooth & Communication Status."""
+        """Page 0 (1/7: SYSTEM): Bluetooth, WiFi & Communication Status."""
         d = self.display
+        if not d: return
         d.fill(0)
         d.fill_rect(0, 0, 128, 11, 1)
         d.text("1/7: SYSTEM", 20, 2, 0)
 
-        d.text(f"BLE : {self.bt_status[:6]}", 6, 18, 1)
-        d.text(self.dev_name[:15], 6, 33, 1)
+        d.text(f"BLE:{self.bt_status[:4]} {self.dev_name[11:15]}", 4, 16, 1)
+        ip_s = self.wifi_mgr.ip_address if self.wifi_mgr else "192.168.4.1"
+        d.text(f"IP :{ip_s}", 4, 30, 1)
         if self.prog_status == "RUNNING":
             st = "RUNNING"
         elif self.last_error == "NO CODE":
             st = "NO CODE"
         else:
             st = "READY"
-        d.text(f"SYS : {st}", 6, 48, 1)
+        d.text(f"SYS:{st}", 4, 46, 1)
         d.show()
 
     def render_page_script(self):
         """Page 1 (2/7: PROGRAM): Existing Script & Execution Status."""
         d = self.display
+        if not d: return
         d.fill(0)
         d.fill_rect(0, 0, 128, 11, 1)
         d.text("2/7: PROGRAM", 16, 2, 0)
@@ -329,6 +291,7 @@ class StoreManager:
     def render_page_power(self):
         """Page 2 (3/7: BATTERY - 2S Li-ion): Power, Gauge & Low-Battery Alarm Setting."""
         d = self.display
+        if not d: return
         d.fill(0)
         d.fill_rect(0, 0, 128, 11, 1)
         d.text("3/7: BATTERY (2S)", 4, 2, 0)
@@ -360,6 +323,7 @@ class StoreManager:
     def render_page_motor_test(self):
         """Page 3 (4/7: MOTOR TEST): Interactive Hardware Motor Tester."""
         d = self.display
+        if not d: return
         d.fill(0)
         d.fill_rect(0, 0, 128, 11, 1)
         d.text("4/7: MOTOR TEST", 4, 2, 0)
@@ -387,6 +351,7 @@ class StoreManager:
     def render_page_servo_test(self):
         """Page 4 (5/7: SERVO TEST): Interactive Servo Sweep Tester (Pins S1=18, S2=19)."""
         d = self.display
+        if not d: return
         d.fill(0)
         d.fill_rect(0, 0, 128, 11, 1)
         d.text("5/7: SERVO TEST", 4, 2, 0)
@@ -413,6 +378,7 @@ class StoreManager:
     def render_page_sensors(self):
         """Page 5 (6/7: SENSORS): Real-Time Live Analog Sensor Dashboard / HUD."""
         d = self.display
+        if not d: return
         d.fill(0)
         d.fill_rect(0, 0, 128, 11, 1)
         mode_tag = "PAUSED" if self.sensor_paused else "LIVE"
@@ -528,7 +494,7 @@ class StoreManager:
             self.wake_from_screensaver()
 
     def wake_from_screensaver(self):
-        """Instant wake-up from screensaver on any physical button press."""
+        """Instant wake-up from screensaver on any interaction."""
         self.is_screensaver = False
         self.last_activity_ticks = time.ticks_ms()
         self.btn1_down = False
@@ -675,14 +641,12 @@ class StoreManager:
         # Page 3: Motor Test
         elif self.current_page == 3:
             if self.motor_cursor == 0:
-                # Motor select cursor: cycle motor channel M1 -> M2 -> M3 -> OUT
                 self.motor_test_idx = (self.motor_test_idx + 1) % len(_MOTOR_PIN_MAP)
                 buzzer.tone(1600, 35)
                 if self.motor_test_running:
                     spd = self.motor_test_speeds[self.motor_test_spd_idx]
                     self._apply_motor_test(self.motor_test_idx, spd)
             else:
-                # Speed select cursor: 10% increment forward up to 100%, then reverse increment!
                 self.motor_test_spd_idx = (self.motor_test_spd_idx + 1) % len(self.motor_test_speeds)
                 spd = self.motor_test_speeds[self.motor_test_spd_idx]
                 buzzer.tone(900 + abs(spd) * 8, 35)
@@ -690,27 +654,24 @@ class StoreManager:
                     self._apply_motor_test(self.motor_test_idx, spd)
             self.render_active_page()
 
-        # Page 4: Servo Test -> Adjust selected field (SRV, FROM, TO)
+        # Page 4: Servo Test
         elif self.current_page == 4:
             if self.servo_cursor == 0:
-                # Toggle Servo 1 / Servo 2
                 self.servo_idx = 1 if self.servo_idx == 0 else 0
                 buzzer.tone(1500, 35)
             elif self.servo_cursor == 1:
-                # Step FROM angle by 10
                 self.servo_from = (self.servo_from + 10) % 190
                 buzzer.tone(900 + self.servo_from * 5, 30)
                 pin = hardware.S1 if self.servo_idx == 0 else hardware.S2
                 self._set_servo_angle(pin, self.servo_from)
             elif self.servo_cursor == 2:
-                # Step TO angle by 10
                 self.servo_to = (self.servo_to + 10) % 190
                 buzzer.tone(900 + self.servo_to * 5, 30)
                 pin = hardware.S1 if self.servo_idx == 0 else hardware.S2
                 self._set_servo_angle(pin, self.servo_to)
             self.render_active_page()
 
-        # Page 5: Sensors -> Cycle Sensor View (ALL -> S1 -> S2 -> S3)
+        # Page 5: Sensors
         elif self.current_page == 5:
             self.sensor_view_idx = (self.sensor_view_idx + 1) % 4
             buzzer.tone(1800, 40)
@@ -737,7 +698,6 @@ class StoreManager:
                 self.btn2_press_tick = now
                 self.btn2_long_triggered = False
             else:
-                # Long press threshold = 500ms
                 if not self.btn2_long_triggered and time.ticks_diff(now, self.btn2_press_tick) > 500:
                     self.btn2_long_triggered = True
                     self.handle_btn2_long_press()
@@ -746,21 +706,12 @@ class StoreManager:
                 self.btn2_down = False
                 if not self.btn2_long_triggered:
                     dur = time.ticks_diff(now, self.btn2_press_tick)
-                    if dur > 40: # Debounce check -> Short press switches pages
+                    if dur > 40:
                         self.handle_btn2_page_cycle()
 
         # BTN1: Contextual Action Button (Active Low, GPIO 16)
-        btn1_val = self.btn_start.value()
-        if self._in_exec or self.prog_status == "RUNNING":
-            # If executing, BTN1 or BTN2 click triggers immediate graceful abort
-            if btn1_val == 0 or btn2_val == 0:
-                if not self.btn1_down:
-                    self.btn1_down = True
-                    buzzer.play_stop()
-                    self.request_abort()
-            else:
-                self.btn1_down = False
-        elif not self.is_uploading:
+        if not self._in_exec and not self.is_uploading:
+            btn1_val = self.btn_start.value()
             if btn1_val == 0:
                 self.last_activity_ticks = now
                 if not self.btn1_down:
@@ -768,7 +719,6 @@ class StoreManager:
                     self.btn1_press_tick = now
                     self.btn1_long_triggered = False
                 else:
-                    # Long press detection threshold = 500ms
                     if not self.btn1_long_triggered and time.ticks_diff(now, self.btn1_press_tick) > 500:
                         self.btn1_long_triggered = True
                         self.handle_btn1_long_press()
@@ -777,33 +727,31 @@ class StoreManager:
                     self.btn1_down = False
                     if not self.btn1_long_triggered:
                         dur = time.ticks_diff(now, self.btn1_press_tick)
-                        if dur > 40: # Debounce check -> Instant short click
+                        if dur > 40:
                             self.handle_btn1_short_click()
 
     def poll_ui(self):
-        """Dynamic UI refresh: fast 50ms for runner game, 30ms for servo sweep, 150ms for live gauges, 500ms idle."""
+        """Dynamic UI refresh rate according to state."""
         now = time.ticks_ms()
 
-        # Keep activity tick fresh while active tasks or game is active
         game_active = (self.current_page == 6 and self.runner_game and self.runner_game.state == "PLAYING")
         if self.motor_test_running or self.servo_sweep_running or self._in_exec or self.is_uploading or self.prog_status == "RUNNING" or game_active:
             self.last_activity_ticks = now
 
-        # Check idle timeout for screensaver (30 seconds)
+        # Idle timeout for screensaver (30 seconds)
         if not self.is_screensaver and not self._in_exec and not self.is_uploading and self.prog_status != "RUNNING" and not self.motor_test_running and not self.servo_sweep_running and not game_active:
             if time.ticks_diff(now, self.last_activity_ticks) >= 30000:
                 self.is_screensaver = True
                 if self.screensaver:
                     self.screensaver.start_random()
 
-        # Render screensaver animation frame
         if self.is_screensaver:
             if self.screensaver and time.ticks_diff(now, self.last_ui_refresh) >= 60:
                 self.last_ui_refresh = now
                 self.screensaver.update()
             return
 
-        # Motor auto-stop safety timeout: 15 seconds max continuous test
+        # Motor auto-stop timeout
         if self.motor_test_running:
             if time.ticks_diff(now, self.motor_test_start_ticks) > 15000:
                 self.motor_test_running = False
@@ -833,7 +781,6 @@ class StoreManager:
                 pin = hardware.S1 if self.servo_idx == 0 else hardware.S2
                 self._set_servo_angle(pin, int(self.servo_curr_angle))
 
-        # Determine refresh interval: 50ms for smooth 20 FPS mini-game, 30ms for servo sweep, 150ms for live sensors/motors, 500ms for static
         is_fast_page = (self.current_page == 5 and not self.sensor_paused) or self.motor_test_running or self.servo_sweep_running or (self.current_page == 6)
         refresh_rate = 50 if self.current_page == 6 else (30 if self.servo_sweep_running else (150 if is_fast_page else 500))
 
@@ -845,6 +792,28 @@ class StoreManager:
     def start(self):
         print("MGR: System Started.")
 
+    def write_out(self, data):
+        """Sends data out over BLE, WiFi WebSocket, and USB Serial."""
+        if not data:
+            return
+        payload = data if isinstance(data, (bytes, bytearray)) else str(data).encode("utf-8")
+        text = payload.decode("utf-8", "ignore")
+        if self.wifi_mgr:
+            try:
+                self.wifi_mgr.send_broadcast(payload)
+            except Exception:
+                pass
+        if self.ble_mgr and getattr(self.ble_mgr, 'is_connected', False):
+            try:
+                self.ble_mgr.send_console(payload)
+            except Exception:
+                pass
+        if getattr(self, 'serial_active', True):
+            try:
+                sys.stdout.write(text)
+            except Exception:
+                pass
+
     def send_ble_data(self, data):
         """Send raw console bytes over BLE characteristic."""
         if self.ble_mgr:
@@ -853,107 +822,174 @@ class StoreManager:
             except Exception:
                 pass
 
-    def poll_serial(self):
-        """Poll incoming serial commands from USB CDC."""
-        try:
-            events = self._poller.poll(0)
-            if events:
-                self.record_activity()
-                line = sys.stdin.readline()
-                if line:
-                    self.process_line(line)
-        except Exception:
-            pass
+    def ingest_data(self, data_chunk, source="SERIAL"):
+        """Central parser for lines/commands coming from Serial, BLE, or WiFi."""
+        if source == "BLE":
+            buf = self._ble_buf
+        elif source == "WIFI":
+            buf = self._wifi_buf
+        else:
+            buf = self._serial_buf
 
-    def process_line(self, line):
-        """Unified command and upload protocol processor for Serial & BLE."""
-        line = line.strip("\r\n").strip()
-        if not line:
+        if len(buf) > 8192:
+            buf[:] = bytearray()
+        buf.extend(data_chunk)
+
+        if b'\n' not in buf:
             return
 
-        if self.is_uploading:
-            if self._upload_fp:
-                try:
-                    self._upload_fp.write(line + "\n")
-                    self._upload_received_lines += 1
-                    if self._upload_total_lines > 0:
-                        pct = int((self._upload_received_lines / self._upload_total_lines) * 100)
-                        self.draw_upload_progress(pct, self._upload_filename)
-                    self.send_response("UPLOAD:OK\n")
-                    if self._upload_received_lines >= self._upload_total_lines:
-                        try:
-                            self._upload_fp.close()
-                        except Exception:
-                            pass
-                        self._upload_fp = None
-                        self.is_uploading = False
-                        buzzer.tone(2000, 80)
-                        self.render_active_page()
-                        self.send_response("UPLOAD:COMPLETE\n")
-                except Exception as e:
-                    print(f"Upload write error: {e}")
-                    self.send_response(f"ERR:UPLOAD:{e}\n")
-            return
+        parts = buf.split(b'\n')
+        buf[:] = parts.pop()
 
-        if line.startswith("BEGIN_UPLOAD:"):
-            parts = line.split(":")
+        for line_bytes in parts:
             try:
-                total_lines = int(parts[1])
-                filename = parts[2] if len(parts) > 2 else "app.py"
+                line_str = line_bytes.decode("utf-8").rstrip("\r")
             except Exception:
-                total_lines = 0
-                filename = "app.py"
+                line_str = ""
 
-            self.is_uploading = True
-            self._upload_total_lines = total_lines
-            self._upload_received_lines = 0
-            self._upload_filename = filename
-            try:
-                self._upload_fp = open(filename, "w")
-            except Exception as e:
-                print("Upload open error:", e)
-                self.is_uploading = False
-                self.send_response("UPLOAD:ERR\n")
-                return
+            self._process_command_or_line(line_str, line_bytes)
 
-            self.draw_upload_progress(0, filename)
-            self.send_response("UPLOAD:READY\n")
+    def _process_command_or_line(self, line_str, raw_bytes):
+        cmd = line_str.strip()
 
-        elif line == "START" or line == "RUN":
-            self.start_prog()
-
-        elif line == "STOP":
-            self.request_abort()
-
-        elif line == "CLEAR":
+        # Handle Protocol Control Commands
+        if cmd == "CLEAR":
+            if self._upload_file:
+                try: self._upload_file.close()
+                except Exception: pass
+                self._upload_file = None
             self.is_uploading = False
-            if self._upload_fp:
-                try:
-                    self._upload_fp.close()
-                except Exception:
-                    pass
-                self._upload_fp = None
+            self.write_out("STATUS:READY\n")
+            self.render_active_page()
 
-        elif line == "SYNC" or line == "STATUS":
-            self.send_response(f"STATUS:{self.prog_status}\n")
+        elif cmd == "STOP":
+            self.stop_prog()
+            self.write_out("STATUS:STOPPED\n")
+
+        elif cmd == "START" or cmd == "RUN":
+            self.start_prog()
+            self.write_out("STATUS:RUNNING\n")
+
+        elif cmd == "SYNC":
+            self.write_out(f"STATUS:{self.prog_status}\n")
             self.poll_power_telemetry(force=True)
 
-        elif line == "PAGE":
+        elif cmd == "SERIAL_ON":
+            self.serial_active = True
+            self.write_out("SERIAL:ON\n")
+
+        elif cmd == "PAGE":
             self.handle_btn2_page_cycle()
 
-    def request_abort(self):
-        """Instantly requests user code abortion, stopping motors and interrupting bytecode."""
-        self.stop_prog()
-        def _abort_cb(t):
-            raise KeyboardInterrupt("STOPPED_BY_USER")
-        try:
-            import micropython
-            micropython.schedule(_abort_cb, 0)
-        except Exception:
-            pass
+        elif cmd.startswith("BEGIN_UPLOAD"):
+            # Format: BEGIN_UPLOAD:total_lines:filename
+            parts = cmd.split(":")
+            total_lines = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else 0
+            filename = parts[2] if len(parts) > 2 and parts[2] else "app.py"
+
+            self._upload_total_lines = total_lines
+            self._upload_current_line = 0
+            self._upload_target_file = filename
+            self.is_uploading = True
+
+            if self._upload_file:
+                try: self._upload_file.close()
+                except Exception: pass
+
+            try:
+                self._upload_file = open(filename, "w")
+            except Exception as e:
+                print(f"MGR: Upload open error: {e}")
+                self.write_out("UPLOAD:ERR\n")
+                return
+
+            # Respond immediately to client so handshake succeeds with zero latency
+            self.write_out("UPLOAD:READY\n")
+
+            if self.display:
+                try:
+                    d = self.display
+                    d.fill(0)
+                    d.fill_rect(0, 0, 128, 12, 1)
+                    d.text("DOWNLOADING", 18, 2, 0)
+                    d.text(f"FILE: {filename[:10]}", 6, 22, 1)
+                    d.text("0%", 56, 38, 1)
+                    d.rect(14, 52, 100, 8, 1)
+                    d.show()
+                except Exception:
+                    pass
+
+        elif self.is_uploading and self._upload_file:
+            # Write line of code to target file
+            try:
+                self._upload_file.write(line_str + "\n")
+                self._upload_current_line += 1
+
+                pct = 100
+                if self._upload_total_lines > 0:
+                    pct = min(100, int((self._upload_current_line / self._upload_total_lines) * 100))
+
+                now = time.ticks_ms()
+                is_done = (self._upload_total_lines > 0 and self._upload_current_line >= self._upload_total_lines)
+
+                # Throttle display refresh to at most once per 200ms or on completion
+                if self.display and (time.ticks_diff(now, self._last_upload_ui_update) >= 200 or is_done):
+                    self._last_upload_ui_update = now
+                    try:
+                        d = self.display
+                        d.fill(0)
+                        d.fill_rect(0, 0, 128, 12, 1)
+                        d.text("DOWNLOADING", 18, 2, 0)
+                        pct_s = f"{pct}%"
+                        px = max(0, (128 - len(pct_s) * 8) // 2)
+                        d.text(pct_s, px, 24, 1)
+                        d.text(f"{self._upload_current_line}/{self._upload_total_lines}", 36, 38, 1)
+                        d.rect(14, 52, 100, 8, 1)
+                        fill_w = int(pct * 96 / 100)
+                        if fill_w > 0:
+                            d.fill_rect(16, 54, fill_w, 4, 1)
+                        d.show()
+                    except Exception:
+                        pass
+
+                self.write_out("UPLOAD:OK\n")
+
+                if is_done:
+                    self._upload_file.close()
+                    self._upload_file = None
+                    self.is_uploading = False
+                    self.write_out("UPLOAD:DONE\n")
+                    buzzer.tone(1500, 60)
+                    self.render_active_page()
+
+            except Exception as e:
+                print(f"MGR: Upload write error: {e}")
+                self.write_out("UPLOAD:ERR\n")
+
+    def poll_serial(self):
+        """Poll incoming serial stream and WiFi socket without blocking."""
+        if self.wifi_mgr:
+            try:
+                self.wifi_mgr.poll()
+            except Exception:
+                pass
+        events = self._poller.poll(0)
+        if events:
+            self.record_activity()
+            try:
+                chunk = sys.stdin.read(1)
+                while chunk:
+                    self.ingest_data(chunk.encode("utf-8"), source="SERIAL")
+                    if not self._poller.poll(0):
+                        break
+                    chunk = sys.stdin.read(1)
+            except Exception:
+                pass
 
     def poll_power_telemetry(self, force=False):
         """Read voltage/current, update live stats, low-battery alert, and broadcast telemetry."""
+        if self.is_uploading and not force:
+            return
         now = time.ticks_ms()
         if force or time.ticks_diff(now, self.last_power_telemetry) >= 2000:
             self.last_power_telemetry = now
@@ -961,11 +997,13 @@ class StoreManager:
                 if self.ina219:
                     volts = round(self.ina219.get_bus_voltage_V(), 2)
                     current_ma = round(self.ina219.get_current_mA(), 1)
+                    power_w = round(volts * (current_ma / 1000.0), 2)
                 else:
                     adc = machine.ADC(machine.Pin(hardware.SN4))
                     raw = adc.read()
                     volts = round((raw / 4095.0) * 3.3 * 4.0, 2)
                     current_ma = 0.0
+                    power_w = 0.0
 
                 # 2S Li-ion Battery Calibration: 6.0V (0%) to 8.4V (100%)
                 pct = max(0, min(100, int((volts - 6.0) / (8.4 - 6.0) * 100)))
@@ -975,7 +1013,6 @@ class StoreManager:
                 self.last_ma    = current_ma
 
                 # Low-Battery Warning Alarm for 2S Li-ion:
-                # Triggers when pack drops below 6.8V (3.4V per cell) and above 4.5V (USB filter)
                 if self.low_batt_alarm_enabled and 4.5 < volts < 6.8:
                     if time.ticks_diff(now, self.last_low_batt_beep) > 12000:
                         self.last_low_batt_beep = now
@@ -983,9 +1020,12 @@ class StoreManager:
                         time.sleep_ms(30)
                         buzzer.tone(440, 50)
 
-                power_mw = round(abs(volts * current_ma), 1)
-                telemetry_str = f"POWER:V={volts:.2f},I={current_ma:.1f},P={power_mw:.1f},B={pct}\n"
-                self.send_response(telemetry_str)
+                # Send Dual Telemetry format for universal App compatibility
+                telemetry_json = f"POWER:{{\"v\":{volts},\"pct\":{pct},\"ma\":{current_ma},\"p\":{power_w}}}\n"
+                telemetry_raw  = f"POWER:V={volts},I={current_ma},P={power_w},B={pct}\n"
+                
+                self.write_out(telemetry_json)
+                self.write_out(telemetry_raw)
             except Exception:
                 pass
 
@@ -994,7 +1034,6 @@ class StoreManager:
         if self.is_uploading:
             return
 
-        # Verification: Does app.py exist and contain code?
         try:
             fsize = os.stat("app.py")[6]
         except Exception:
@@ -1006,7 +1045,8 @@ class StoreManager:
             self._in_exec = False
             self.last_error = "NO CODE"
             buzzer.play_error()
-            self.send_response("STATUS:STOPPED\n")
+            self.write_out("ERR:No code uploaded in app.py\n")
+            self.write_out("STATUS:STOPPED\n")
             self.render_active_page()
             return
 
@@ -1014,8 +1054,8 @@ class StoreManager:
         self.exec_start_ticks = time.ticks_ms()
         self._in_exec = True
         buzzer.play_run()
+        self.write_out("STATUS:RUNNING\n")
         print(f"MGR: Program Execution Started (Session {self.exec_start_ticks})")
-        self.send_response("STATUS:RUNNING\n")
         self.render_active_page()
 
     def stop_prog(self, err=None):
@@ -1023,11 +1063,12 @@ class StoreManager:
         self._in_exec = False
         self.last_error = str(err) if err else None
         buzzer.play_stop()
+        self.write_out("STATUS:STOPPED\n")
         print("MGR: Program Execution Stopped.")
-        self.send_response("STATUS:STOPPED\n")
 
-        # Safety reset for motor and output pins (no LEDC channel exhaustion)
+        # Safety reset for motor and output pins
         self._stop_all_motors()
+        self._stop_servo()
 
         # Return to currently active page
         if self.display and not self.is_uploading:
